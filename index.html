@@ -3,239 +3,482 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>🐢 海龟交易法则 — TASK4</title>
+<title>🐢 海龟交易法则 — TASK4 策略回测看板</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js">
+</script>
 <style>
-  :root {
-    --bg: #f8fafc;
-    --card: #ffffff;
-    --text: #1e293b;
-    --text-secondary: #64748b;
-    --accent: #2563eb;
-    --accent-light: #dbeafe;
-    --green: #16a34a;
-    --red: #dc2626;
-    --border: #e2e8f0;
-  }
-  * { margin: 0; padding: 0; box-sizing: border-box; }
-  body {
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC",
-                 "Microsoft YaHei", sans-serif;
-    background: var(--bg);
-    color: var(--text);
-    line-height: 1.6;
-  }
-  .container { max-width: 960px; margin: 0 auto; padding: 24px; }
-  header {
-    background: linear-gradient(135deg, #1e40af, #3b82f6);
-    color: #fff;
-    padding: 48px 24px;
-    text-align: center;
-  }
-  header h1 { font-size: 2rem; margin-bottom: 8px; }
-  header p { opacity: 0.85; font-size: 1.1rem; }
-  .card {
-    background: var(--card);
-    border: 1px solid var(--border);
-    border-radius: 12px;
-    padding: 24px;
-    margin-bottom: 20px;
-    box-shadow: 0 1px 3px rgba(0,0,0,0.06);
-  }
-  .card h2 { font-size: 1.3rem; color: var(--accent); margin-bottom: 12px; }
-  .card h3 { font-size: 1.05rem; margin: 16px 0 8px; color: #334155; }
-  .badge {
-    display: inline-block;
-    padding: 3px 10px;
-    border-radius: 20px;
-    font-size: 0.8rem;
-    font-weight: 600;
-  }
-  .badge-ok { background: #dcfce7; color: #15803d; }
-  table { width: 100%; border-collapse: collapse; margin: 12px 0; }
-  th, td { padding: 10px 12px; text-align: left; border-bottom: 1px solid var(--border); }
-  th { background: var(--accent-light); color: var(--accent); font-weight: 600; font-size: 0.9rem; }
-  td { font-size: 0.9rem; }
-  .metric-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-    gap: 16px;
-    margin: 16px 0;
-  }
-  .metric {
-    background: var(--bg);
-    border-radius: 8px;
-    padding: 16px;
-    text-align: center;
-  }
-  .metric .value { font-size: 1.5rem; font-weight: 700; color: var(--accent); }
-  .metric .label { font-size: 0.85rem; color: var(--text-secondary); margin-top: 4px; }
-  .steps { list-style: none; padding: 0; }
-  .steps li {
-    padding: 8px 0;
-    border-bottom: 1px solid var(--border);
-    display: flex; align-items: center; gap: 8px;
-  }
-  .steps li:last-child { border-bottom: none; }
-  .step-num {
-    background: var(--accent);
-    color: #fff;
-    width: 24px; height: 24px;
-    border-radius: 50%;
-    display: flex; align-items: center; justify-content: center;
-    font-size: 0.8rem; font-weight: 700; flex-shrink: 0;
-  }
-  pre {
-    background: #1e293b;
-    color: #e2e8f0;
-    padding: 16px;
-    border-radius: 8px;
-    overflow-x: auto;
-    font-size: 0.85rem;
-    margin: 8px 0;
-  }
-  .stock-tag {
-    display: inline-block;
-    padding: 4px 12px;
-    margin: 4px;
-    border-radius: 6px;
-    background: var(--accent-light);
-    color: var(--accent);
-    font-size: 0.85rem;
-    font-weight: 500;
-  }
-  footer {
-    text-align: center;
-    padding: 32px;
-    color: var(--text-secondary);
-    font-size: 0.85rem;
-  }
-  a { color: var(--accent); text-decoration: none; }
-  a:hover { text-decoration: underline; }
+:root {
+  --bg: #f1f5f9; --card: #ffffff; --text: #1e293b;
+  --text2: #64748b; --accent: #2563eb; --alight: #dbeafe;
+  --green: #16a34a; --red: #dc2626; --border: #e2e8f0;
+  --amber: #d97706; --purple: #7c3aed;
+}
+* { margin:0; padding:0; box-sizing:border-box; }
+body { font-family: -apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Microsoft YaHei",sans-serif; background:var(--bg); color:var(--text); }
+header { background: linear-gradient(135deg,#1e3a5f,#2563eb); color:#fff; padding:24px 20px; text-align:center; }
+header h1 { font-size:1.6rem; }
+header p { opacity:.8; font-size:.9rem; margin-top:4px; }
+.toolbar { max-width:1200px; margin:0 auto; padding:16px 20px; display:flex; flex-wrap:wrap; gap:12px; align-items:center; }
+.toolbar select, .toolbar input, .toolbar button {
+  padding:8px 14px; border:1px solid var(--border); border-radius:8px;
+  font-size:.9rem; background:var(--card); cursor:pointer;
+}
+.toolbar button { background:var(--accent); color:#fff; border:none; font-weight:600; }
+.toolbar button:hover { opacity:.85; }
+.toolbar label { font-size:.85rem; color:var(--text2); margin-right:4px; }
+.main { max-width:1200px; margin:0 auto; padding:0 20px 40px; }
+.metrics-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(150px,1fr)); gap:12px; margin-bottom:16px; }
+.metric-card { background:var(--card); border-radius:10px; padding:16px; text-align:center; border:1px solid var(--border); box-shadow:0 1px 2px rgba(0,0,0,.04); }
+.metric-card .val { font-size:1.5rem; font-weight:700; }
+.metric-card .lbl { font-size:.8rem; color:var(--text2); margin-top:2px; }
+.val-green { color:var(--green); } .val-red { color:var(--red); } .val-blue { color:var(--accent); } .val-amber { color:var(--amber); } .val-purple { color:var(--purple); }
+.chart-box { background:var(--card); border-radius:12px; padding:20px; margin-bottom:16px; border:1px solid var(--border); box-shadow:0 1px 3px rgba(0,0,0,.04); }
+.chart-box h3 { font-size:1rem; margin-bottom:12px; color:var(--text); }
+.chart-box canvas { width:100%; max-height:420px; }
+.stock-tags { display:flex; flex-wrap:wrap; gap:8px; margin:8px 0; }
+.stock-tag { display:inline-block; padding:4px 12px; border-radius:20px; background:var(--alight); color:var(--accent); font-size:.8rem; font-weight:500; }
+.stock-tag.active { background:var(--accent); color:#fff; }
+.trade-table { width:100%; border-collapse:collapse; font-size:.85rem; margin-top:8px; }
+.trade-table th,.trade-table td { padding:8px 10px; text-align:left; border-bottom:1px solid var(--border); }
+.trade-table th { background:var(--alight); color:var(--accent); font-weight:600; }
+footer { text-align:center; padding:24px; color:var(--text2); font-size:.8rem; }
+.loading { text-align:center; padding:40px; color:var(--text2); }
+.note { font-size:.8rem; color:var(--text2); margin-top:8px; }
+.section-title { font-size:1.1rem; font-weight:700; margin:20px 0 12px; color:var(--text); }
 </style>
 </head>
 <body>
 
 <header>
   <h1>🐢 海龟交易法则 — 策略回测分析</h1>
-  <p>量化交易工作坊 TASK4 | 基于唐奇安通道 + ATR + 风险预算的趋势跟踪策略</p>
+  <p>基于唐奇安通道 + ATR + 风险预算的趋势跟踪策略 | 量化交易工作坊 TASK4</p>
 </header>
 
-<div class="container">
-
-  <div class="card">
-    <h2>📋 项目概述</h2>
-    <p>
-      本项目完整实现了经典的海龟交易法则（Turtle Trading Rules），由 Richard Dennis 和
-      William Eckhardt 在 1983 年创立。海龟策略是量化交易历史上最具传奇色彩的趋势跟踪策略，
-      其核心理念为<strong>顺势而为、让利润奔跑、截断亏损</strong>。
-    </p>
-
-    <h3>核心规则</h3>
-    <table>
-      <tr><th>规则</th><th>参数</th><th>说明</th></tr>
-      <tr><td>入场信号</td><td>20日唐奇安通道上轨</td><td>收盘价突破20日最高价 → 买入</td></tr>
-      <tr><td>退出信号</td><td>10日唐奇安通道下轨</td><td>收盘价跌破10日最低价 → 卖出</td></tr>
-      <tr><td>止损规则</td><td>2 × ATR</td><td>止损价 = 入场价 - 2 × ATR</td></tr>
-      <tr><td>仓位管理</td><td>1% 风险预算</td><td>单笔最大亏损 = 账户权益 × 1%</td></tr>
-      <tr><td>ATR 计算</td><td>20日 Wilder 平滑</td><td>用于仓位规模和止损带宽度</td></tr>
-    </table>
-  </div>
-
-  <div class="card">
-    <h2>📊 分析标的</h2>
-    <p>四只卫星通信产业链 A 股：</p>
-    <div style="margin-top: 8px;">
-      <span class="stock-tag">688418.SH 震有科技</span>
-      <span class="stock-tag">600118.SH 中国卫星</span>
-      <span class="stock-tag">601698.SH 中国卫通</span>
-      <span class="stock-tag">300045.SZ 华力创通</span>
-    </div>
-  </div>
-
-  <div class="card">
-    <h2>📈 绩效指标</h2>
-    <div class="metric-grid">
-      <div class="metric">
-        <div class="value">累计回报</div>
-        <div class="label">Cumulative Return</div>
-      </div>
-      <div class="metric">
-        <div class="value">最大回撤</div>
-        <div class="label">MDD</div>
-      </div>
-      <div class="metric">
-        <div class="value">夏普比率</div>
-        <div class="label">Sharpe Ratio</div>
-      </div>
-      <div class="metric">
-        <div class="value">年化波动</div>
-        <div class="label">Ann. Volatility</div>
-      </div>
-      <div class="metric">
-        <div class="value">胜率</div>
-        <div class="label">Win Rate</div>
-      </div>
-      <div class="metric">
-        <div class="value">年化收益</div>
-        <div class="label">Ann. Return</div>
-      </div>
-    </div>
-    <p style="color: var(--text-secondary); font-size: 0.85rem;">
-      * 具体数值请运行 <code>python turtle_strategy.py</code> 查看完整回测结果
-    </p>
-  </div>
-
-  <div class="card">
-    <h2>🚀 快速开始</h2>
-    <ol class="steps">
-      <li><span class="step-num">1</span> 安装依赖：<code>pip install -r requirements.txt</code></li>
-      <li><span class="step-num">2</span> 运行回测：<code>python turtle_strategy.py</code></li>
-      <li><span class="step-num">3</span> 生成报告：<code>python generate_report.py</code></li>
-      <li><span class="step-num">4</span> 查看 charts：<code>images/</code> 目录</li>
-    </ol>
-  </div>
-
-  <div class="card">
-    <h2>📐 项目结构</h2>
-    <pre>ai-quant-turtle/
-├── data/                   # 股票日线数据 (CSV)
-├── images/                 # 回测图表输出
-├── reports/                # PDF 报告 & CSV 汇总
-├── turtle_strategy.py      # 核心策略 (主程序)
-├── generate_report.py      # PDF 报告生成
-├── index.html              # 本页面
-├── README.md               # 项目文档
-└── requirements.txt        # Python 依赖</pre>
-  </div>
-
-  <div class="card">
-    <h2>✅ 作业要求完成情况</h2>
-    <table>
-      <tr><th>#</th><th>要求</th><th>状态</th></tr>
-      <tr><td>1</td><td>海龟策略核心思想与关键优势</td><td><span class="badge badge-ok">✓ 完成</span></td></tr>
-      <tr><td>2</td><td>核心概念解释 (通道/ATR/止损)</td><td><span class="badge badge-ok">✓ 完成</span></td></tr>
-      <tr><td>3.1</td><td>加载已存储的股价数据</td><td><span class="badge badge-ok">✓ 完成</span></td></tr>
-      <tr><td>3.2</td><td>计算高低价格通道</td><td><span class="badge badge-ok">✓ 完成</span></td></tr>
-      <tr><td>3.3</td><td>计算 ATR 数值</td><td><span class="badge badge-ok">✓ 完成</span></td></tr>
-      <tr><td>3.4</td><td>计算买入卖出交易信号</td><td><span class="badge badge-ok">✓ 完成</span></td></tr>
-      <tr><td>3.5</td><td>绘制可视化图形</td><td><span class="badge badge-ok">✓ 完成</span></td></tr>
-      <tr><td>3.6</td><td>模拟交易回测与量化指标</td><td><span class="badge badge-ok">✓ 完成</span></td></tr>
-      <tr><td>4</td><td>参数调优与心得总结</td><td><span class="badge badge-ok">✓ 完成</span></td></tr>
-    </table>
-  </div>
-
-  <div class="card">
-    <h2>⚠️ 免责声明</h2>
-    <p style="color: var(--text-secondary);">
-      本策略仅供教学研究使用，不构成任何投资建议。历史回测结果不代表未来表现。
-      实际交易中请充分考虑交易成本、滑点、流动性等现实因素。
-    </p>
-  </div>
-
+<div class="toolbar">
+  <label>股票:</label>
+  <select id="stockSelect">
+    <option value="688418_SH_daily.csv">688418.SH 震有科技</option>
+    <option value="600118_SH_daily.csv">600118.SH 中国卫星</option>
+    <option value="601698_SH_daily.csv">601698.SH 中国卫通</option>
+    <option value="300045_SZ_daily.csv">300045.SZ 华力创通</option>
+  </select>
+  <label>入场通道:</label>
+  <input type="number" id="entryPeriod" value="20" min="5" max="100" style="width:70px">
+  <label>退出通道:</label>
+  <input type="number" id="exitPeriod" value="10" min="3" max="50" style="width:70px">
+  <label>ATR周期:</label>
+  <input type="number" id="atrPeriod" value="20" min="5" max="50" style="width:70px">
+  <label>止损(ATR倍数):</label>
+  <input type="number" id="stopMult" value="2.0" min="0.5" max="5" step="0.5" style="width:70px">
+  <button onclick="runBacktest()">▶ 运行回测</button>
 </div>
 
-<footer>
-  <p>量化交易工作坊 TASK4 · 数据来源：Tushare Pro API · MIT License</p>
-</footer>
+<div class="main">
+  <div class="stock-tags" id="stockTags"></div>
+
+  <div id="metricsContainer"></div>
+
+  <div class="chart-box"><h3>图1: 股价走势、唐奇安通道与海龟交易信号</h3><canvas id="chartPrice"></canvas></div>
+  <div class="chart-box"><h3>图2: 策略资金曲线 vs 买入持有基准</h3><canvas id="chartEquity"></canvas></div>
+  <div class="chart-box"><h3>图3: 策略回撤曲线</h3><canvas id="chartDD"></canvas></div>
+  <div class="chart-box"><h3>图4: ATR 走势</h3><canvas id="chartATR"></canvas></div>
+  <div class="chart-box" id="tradesBox" style="display:none">
+    <h3>交易明细</h3>
+    <div style="overflow-x:auto"><table class="trade-table" id="tradeTable"><thead><tr><th>入场日</th><th>出场日</th><th>入场价</th><th>出场价</th><th>收益率</th><th>持仓天数</th><th>类型</th></tr></thead><tbody></tbody></table></div>
+  </div>
+</div>
+
+<footer>量化交易工作坊 TASK4 · 数据来源: Tushare Pro · 仅供教学研究使用</footer>
+
+<script>
+// ===================== Turtle Strategy Engine (JS) =====================
+
+function rollingMax(arr, period, shift=1) {
+  const res = new Array(arr.length).fill(null);
+  const dq = [];
+  for (let i=0; i<arr.length; i++) {
+    while (dq.length && dq[0]<=i-period) dq.shift();
+    while (dq.length && arr[dq[dq.length-1]]<=arr[i]) dq.pop();
+    dq.push(i);
+    if (i>=period-1) res[i]=arr[dq[0]];
+  }
+  if (shift) { for (let i=res.length-1; i>=1; i--) res[i]=res[i-1]; res[0]=null; }
+  return res;
+}
+
+function rollingMin(arr, period, shift=1) {
+  const res = new Array(arr.length).fill(null);
+  const dq = [];
+  for (let i=0; i<arr.length; i++) {
+    while (dq.length && dq[0]<=i-period) dq.shift();
+    while (dq.length && arr[dq[dq.length-1]]>=arr[i]) dq.pop();
+    dq.push(i);
+    if (i>=period-1) res[i]=arr[dq[0]];
+  }
+  if (shift) { for (let i=res.length-1; i>=1; i--) res[i]=res[i-1]; res[0]=null; }
+  return res;
+}
+
+function calcTR(high, low, close) {
+  const tr = new Array(high.length).fill(null);
+  for (let i=1; i<high.length; i++) {
+    tr[i] = Math.max(high[i]-low[i], Math.abs(high[i]-close[i-1]), Math.abs(low[i]-close[i-1]));
+  }
+  return tr;
+}
+
+function calcATR(high, low, close, period, shift=1) {
+  const tr = calcTR(high, low, close);
+  const atr = new Array(high.length).fill(null);
+  if (high.length >= period) {
+    let sum=0, cnt=0;
+    for (let i=0; i<period; i++) { if (tr[i]!=null) { sum+=tr[i]; cnt++; } }
+    if (cnt>0) atr[period-1] = sum/cnt;
+    for (let i=period; i<high.length; i++) {
+      if (tr[i]!=null && atr[i-1]!=null) atr[i] = (atr[i-1]*(period-1)+tr[i])/period;
+    }
+  }
+  if (shift) { for (let i=atr.length-1; i>=1; i--) atr[i]=atr[i-1]; atr[0]=null; }
+  return atr;
+}
+
+function calcDonchian(high, low, period, shift=1) {
+  return { upper:rollingMax(high,period,shift), lower:rollingMin(low,period,shift) };
+}
+
+function generateSignals(data, entryP, exitP, atrP) {
+  const n = data.length;
+  const high=data.map(d=>d.high), low=data.map(d=>d.low), close=data.map(d=>d.close);
+  const atr = calcATR(high,low,close,atrP,1);
+  const entryCh = calcDonchian(high,low,entryP,1);
+  const exitCh = calcDonchian(high,low,exitP,1);
+  const entrySig=new Array(n).fill(0), exitSig=new Array(n).fill(0);
+  for (let i=Math.max(entryP,atrP); i<n; i++) {
+    if (close[i]!=null && entryCh.upper[i]!=null && close[i]>entryCh.upper[i]) entrySig[i]=1;
+    if (close[i]!=null && exitCh.lower[i]!=null && close[i]<exitCh.lower[i]) exitSig[i]=1;
+  }
+  return { entrySignal:entrySig, exitSignal:exitSig, atr, entryUpper:entryCh.upper, entryLower:entryCh.lower, exitUpper:exitCh.upper, exitLower:exitCh.lower };
+}
+
+function runBacktestFull(data, params) {
+  const { entry_period, exit_period, atr_period, stop_multiple, risk_fraction, initial_capital } = params;
+  const signals = generateSignals(data, entry_period, exit_period, atr_period);
+  const n = data.length;
+  let cash = initial_capital, shares = 0, position = 0;
+  let entryPrice = 0, entryATR = 0, stopPrice = 0;
+  const tradeRecords = [], equityRecords = [];
+
+  for (let i=Math.max(entry_period, atr_period); i<n; i++) {
+    const row=data[i], date=row.date, o=row.open, c=row.close, a=signals.atr[i];
+    const entrySig=signals.entrySignal[i], exitSig=signals.exitSignal[i];
+    if (o==null||c==null||a==null) { equityRecords.push({date,totalEquity:cash+(position?shares*c:0),close:c,atr:a}); continue; }
+
+    // Stop loss
+    if (position===1 && c<stopPrice) {
+      cash = shares*c; shares=0; position=0;
+      tradeRecords.push({entryDate:null,exitDate:date,entryPrice,exitPrice:c,returnPct:(c-entryPrice)/entryPrice,type:'止损平仓'});
+    }
+    // Exit signal
+    else if (position===1 && exitSig) {
+      cash = shares*c; shares=0; position=0;
+      tradeRecords.push({entryDate:null,exitDate:date,entryPrice,exitPrice:c,returnPct:(c-entryPrice)/entryPrice,type:'卖出'});
+    }
+    // Entry signal
+    else if (position===0 && entrySig) {
+      const riskAmt = cash*risk_fraction;
+      let qty = Math.floor(riskAmt/(stop_multiple*a));
+      if (qty<100) qty=100;
+      const cost = qty*c;
+      if (cost<=cash) {
+        shares=qty; cash-=cost; position=1; entryPrice=c; entryATR=a;
+        stopPrice=entryPrice-stop_multiple*entryATR;
+        tradeRecords.push({entryDate:date,exitDate:null,entryPrice,exitPrice:null,returnPct:null,type:'买入'});
+      }
+    }
+    const totalEquity = cash + (position===1 ? shares*c : 0);
+    equityRecords.push({date,totalEquity,close:c,atr:a});
+  }
+
+  // Final close
+  if (position===1) {
+    const lastC = data[n-1].close;
+    cash = shares*lastC; shares=0;
+    tradeRecords.push({entryDate:null,exitDate:data[n-1].date,entryPrice,exitPrice:lastC,returnPct:(lastC-entryPrice)/entryPrice,type:'清仓'});
+    equityRecords[equityRecords.length-1].totalEquity = cash;
+  }
+
+  // Pair buys with sells
+  const buys = tradeRecords.filter(t=>t.type==='买入');
+  const sells = tradeRecords.filter(t=>t.type!=='买入');
+  for (let j=0; j<Math.min(buys.length,sells.length); j++) {
+    sells[j].entryDate = buys[j].entryDate;
+    sells[j].entryPrice = buys[j].entryPrice;
+    sells[j].returnPct = (sells[j].exitPrice-buys[j].entryPrice)/buys[j].entryPrice;
+    sells[j].holdingDays = Math.round((new Date(sells[j].exitDate)-new Date(buys[j].entryDate))/86400000);
+  }
+  const completedTrades = sells.filter(t=>t.entryDate!=null);
+
+  return { signals, equityRecords, tradeRecords:completedTrades };
+}
+
+function computeMetrics(equityRecs, tradeRecs, initialCapital) {
+  const n=equityRecs.length;
+  if (n===0) return {};
+  const equity = equityRecs.map(e=>e.totalEquity);
+  const final=equity[n-1], cumRet=(final-initialCapital)/initialCapital;
+  const years=n/252, annRet=years>0?Math.pow(1+cumRet,1/years)-1:0;
+
+  const dailyR=[];
+  for (let i=1;i<n;i++) { if (equity[i-1]>0) dailyR.push((equity[i]-equity[i-1])/equity[i-1]); }
+  const meanR=dailyR.reduce((s,v)=>s+v,0)/dailyR.length;
+  const variance=dailyR.reduce((s,v)=>s+Math.pow(v-meanR,2),0)/dailyR.length;
+  const annVol=Math.sqrt(variance)*Math.sqrt(252);
+  const sharpe=annVol>0?(meanR/annVol)*Math.sqrt(252):0;
+
+  let peak=-Infinity, maxDD=0;
+  for (const v of equity) { if (v>peak) peak=v; const dd=(v-peak)/peak; if (dd<maxDD) maxDD=dd; }
+
+  const nT=tradeRecs.length;
+  let winRate=0, avgWin=0, avgLoss=0, avgHold=0;
+  if (nT>0) {
+    const wins=tradeRecs.filter(t=>t.returnPct>0), losses=tradeRecs.filter(t=>t.returnPct<=0);
+    winRate=wins.length/nT;
+    avgWin=wins.length>0?wins.reduce((s,t)=>s+t.returnPct,0)/wins.length:0;
+    avgLoss=losses.length>0?losses.reduce((s,t)=>s+t.returnPct,0)/losses.length:0;
+    avgHold=tradeRecs.reduce((s,t)=>s+(t.holdingDays||0),0)/nT;
+  }
+  const benchRet = (equityRecs[n-1].close-equityRecs[0].close)/equityRecs[0].close;
+
+  return {
+    cumRet, annRet, annVol, sharpe, maxDD, winRate,
+    totalTrades:nT, avgWin, avgLoss, avgHold, benchRet,
+    totalReturnPct: cumRet*100, annReturnPct: annRet*100,
+    maxDDPct: maxDD*100, winRatePct: winRate*100,
+    annVolPct: annVol*100, benchRetPct: benchRet*100,
+    finalEquity: equity[n-1],
+  };
+}
+
+// ===================== Load & Run =====================
+
+let allData = {};
+let chartPrice=null, chartEquity=null, chartDD=null, chartATR=null;
+
+async function loadCSV(filename) {
+  const resp = await fetch('data/'+filename);
+  const text = await resp.text();
+  const lines = text.trim().split('\n');
+  if (lines.length<2) return [];
+  // Detect BOM and header
+  let header = lines[0].replace(/^﻿/,'').split(',');
+  // Map columns: we need trade_date, open, high, low, close
+  const dateIdx = header.findIndex(h=>h.toLowerCase().includes('trade_date')||h.toLowerCase()==='date');
+  const openIdx = header.findIndex(h=>h.toLowerCase()==='open');
+  const highIdx = header.findIndex(h=>h.toLowerCase()==='high');
+  const lowIdx = header.findIndex(h=>h.toLowerCase()==='low');
+  const closeIdx = header.findIndex(h=>h.toLowerCase()==='close');
+
+  const data = [];
+  for (let i=1; i<lines.length; i++) {
+    const cols = lines[i].split(',');
+    const dateStr = cols[dateIdx];
+    // Parse date (handle both 2025-07-04 and 20250704)
+    let date;
+    if (dateStr.includes('-')) {
+      date = new Date(dateStr+'T00:00:00');
+    } else {
+      const d=dateStr.trim();
+      date = new Date(d.slice(0,4)+'-'+d.slice(4,6)+'-'+d.slice(6,8)+'T00:00:00');
+    }
+    if (isNaN(date.getTime())) continue;
+    data.push({
+      date: date.toISOString().split('T')[0],
+      open: parseFloat(cols[openIdx]),
+      high: parseFloat(cols[highIdx]),
+      low: parseFloat(cols[lowIdx]),
+      close: parseFloat(cols[closeIdx]),
+    });
+  }
+  return data.sort((a,b)=>a.date.localeCompare(b.date));
+}
+
+async function loadAllData() {
+  const files = ['688418_SH_daily.csv','600118_SH_daily.csv','601698_SH_daily.csv','300045_SZ_daily.csv'];
+  for (const f of files) {
+    allData[f] = await loadCSV(f);
+  }
+}
+
+function destroyCharts() {
+  [chartPrice,chartEquity,chartDD,chartATR].forEach(c=>{ if(c) c.destroy(); });
+}
+
+function formatPct(v) { return (v>=0?'+':'')+v.toFixed(2)+'%'; }
+
+function renderMetrics(m) {
+  document.getElementById('metricsContainer').innerHTML = `
+    <div class="metrics-grid">
+      <div class="metric-card"><div class="val ${m.totalReturnPct>=0?'val-green':'val-red'}">${formatPct(m.totalReturnPct)}</div><div class="lbl">累计回报率</div></div>
+      <div class="metric-card"><div class="val ${m.annReturnPct>=0?'val-green':'val-red'}">${formatPct(m.annReturnPct)}</div><div class="lbl">年化收益率</div></div>
+      <div class="metric-card"><div class="val val-red">${m.maxDDPct.toFixed(2)}%</div><div class="lbl">最大回撤 (MDD)</div></div>
+      <div class="metric-card"><div class="val ${m.sharpe>=0?'val-blue':'val-red'}">${m.sharpe.toFixed(4)}</div><div class="lbl">夏普比率</div></div>
+      <div class="metric-card"><div class="val val-purple">${m.annVolPct.toFixed(2)}%</div><div class="lbl">年化波动率</div></div>
+      <div class="metric-card"><div class="val val-amber">${m.winRatePct.toFixed(1)}%</div><div class="lbl">胜率</div></div>
+      <div class="metric-card"><div class="val val-blue">${m.totalTrades}</div><div class="lbl">交易次数</div></div>
+      <div class="metric-card"><div class="val ${m.benchRetPct>=0?'val-green':'val-red'}">${formatPct(m.benchRetPct)}</div><div class="lbl">买入持有基准</div></div>
+    </div>`;
+}
+
+function renderCharts(data, result) {
+  destroyCharts();
+  const { signals, equityRecords, tradeRecords } = result;
+  const labels = data.map(d=>d.date);
+  const close = data.map(d=>d.close);
+
+  // Chart 1: Price + Channels + Signals
+  const ctx1 = document.getElementById('chartPrice').getContext('2d');
+  const buyPts = [], sellPts = [];
+  for (let i=0; i<data.length; i++) {
+    if (signals.entrySignal[i]===1) buyPts.push({x:labels[i],y:close[i]});
+    if (signals.exitSignal[i]===1) sellPts.push({x:labels[i],y:close[i]});
+  }
+
+  chartPrice = new Chart(ctx1, {
+    type:'line',
+    data:{
+      labels,
+      datasets:[
+        {label:'收盘价',data:close,borderColor:'#2563eb',borderWidth:1.2,pointRadius:0,tension:0},
+        {label:'入场通道上轨(买入触发)',data:signals.entryUpper,borderColor:'#dc2626',borderWidth:1,borderDash:[6,3],pointRadius:0,tension:0},
+        {label:'退出通道下轨(卖出触发)',data:signals.exitLower,borderColor:'#d97706',borderWidth:1,borderDash:[6,3],pointRadius:0,tension:0},
+        {label:'买入信号',data:buyPts,type:'scatter',backgroundColor:'#16a34a',borderColor:'#fff',borderWidth:1,pointRadius:7,pointStyle:'triangle'},
+        {label:'卖出信号',data:sellPts,type:'scatter',backgroundColor:'#dc2626',borderColor:'#fff',borderWidth:1,pointRadius:7,pointStyle:'triangle',rotation:180},
+      ]
+    },
+    options:{
+      responsive:true,
+      plugins:{legend:{position:'top',labels:{font:{size:11},usePointStyle:true,pointStyleWidth:8}}},
+      scales:{x:{ticks:{maxTicksLimit:18,font:{size:10}}},y:{title:{display:true,text:'价格 (元)'}}},
+      interaction:{intersect:false,mode:'index'},
+    }
+  });
+
+  // Chart 2: Equity Curve
+  const ctx2 = document.getElementById('chartEquity').getContext('2d');
+  const eqLabels = equityRecords.map(e=>e.date);
+  const eqVals = equityRecords.map(e=>e.totalEquity);
+  const benchVals = equityRecords.map((e,i)=>eqVals[0]*(close[i]/close[0]));
+  const initEq = eqVals[0];
+
+  chartEquity = new Chart(ctx2, {
+    type:'line',
+    data:{
+      labels:eqLabels,
+      datasets:[
+        {label:'海龟策略资金曲线',data:eqVals,borderColor:'#2563eb',borderWidth:2,pointRadius:0,fill:false},
+        {label:'买入持有(基准)',data:benchVals,borderColor:'#94a3b8',borderWidth:1,borderDash:[4,4],pointRadius:0,fill:false},
+      ]
+    },
+    options:{
+      responsive:true,
+      plugins:{
+        legend:{position:'top',labels:{font:{size:11}}},
+        annotation:!1,
+      },
+      scales:{x:{ticks:{maxTicksLimit:18,font:{size:10}}},y:{title:{display:true,text:'资产 (元)'}}},
+    }
+  });
+
+  // Chart 3: Drawdown
+  const ctx3 = document.getElementById('chartDD').getContext('2d');
+  const ddVals = [];
+  let peak = -Infinity;
+  for (const v of eqVals) { if (v>peak) peak=v; ddVals.push((v-peak)/peak*100); }
+
+  chartDD = new Chart(ctx3, {
+    type:'line',
+    data:{
+      labels:eqLabels,
+      datasets:[{
+        label:'回撤 (%)',data:ddVals,
+        borderColor:'#dc2626',backgroundColor:'rgba(220,38,38,0.15)',borderWidth:1,pointRadius:0,fill:true,
+      }]
+    },
+    options:{
+      responsive:true,
+      plugins:{legend:{display:false}},
+      scales:{x:{ticks:{maxTicksLimit:18,font:{size:10}}},y:{title:{display:true,text:'回撤 (%)'},max:5}},
+    }
+  });
+
+  // Chart 4: ATR
+  const ctx4 = document.getElementById('chartATR').getContext('2d');
+  chartATR = new Chart(ctx4, {
+    type:'line',
+    data:{
+      labels,
+      datasets:[{
+        label:'ATR',data:signals.atr,
+        borderColor:'#7c3aed',backgroundColor:'rgba(124,58,237,0.12)',borderWidth:1,pointRadius:0,fill:true,
+      }]
+    },
+    options:{
+      responsive:true,
+      plugins:{legend:{display:false}},
+      scales:{x:{ticks:{maxTicksLimit:18,font:{size:10}}},y:{title:{display:true,text:'ATR (元)'}}},
+    }
+  });
+}
+
+function renderTrades(trades) {
+  const box = document.getElementById('tradesBox');
+  const tbody = document.getElementById('tradeTable').querySelector('tbody');
+  if (trades.length===0) { box.style.display='none'; return; }
+  box.style.display='block';
+  tbody.innerHTML = trades.map(t=>`<tr>
+    <td>${t.entryDate||'-'}</td><td>${t.exitDate||'-'}</td>
+    <td>${t.entryPrice?.toFixed(2)}</td><td>${t.exitPrice?.toFixed(2)}</td>
+    <td style="color:${t.returnPct>=0?'#16a34a':'#dc2626'}">${t.returnPct!=null?formatPct(t.returnPct*100):'-'}</td>
+    <td>${t.holdingDays||'-'}</td>
+    <td>${t.type||'-'}</td>
+  </tr>`).join('');
+}
+
+async function runBacktest() {
+  const filename = document.getElementById('stockSelect').value;
+  const entryP = parseInt(document.getElementById('entryPeriod').value);
+  const exitP = parseInt(document.getElementById('exitPeriod').value);
+  const atrP = parseInt(document.getElementById('atrPeriod').value);
+  const stopM = parseFloat(document.getElementById('stopMult').value);
+
+  if (!allData[filename] || allData[filename].length===0) {
+    document.getElementById('metricsContainer').innerHTML = '<div class="loading">⏳ 数据加载中...</div>';
+    return;
+  }
+
+  const params = {
+    entry_period:entryP, exit_period:exitP, atr_period:atrP,
+    stop_multiple:stopM, risk_fraction:0.01, initial_capital:100000,
+  };
+
+  const result = runBacktestFull(allData[filename], params);
+  const metrics = computeMetrics(result.equityRecords, result.tradeRecords, params.initial_capital);
+
+  renderMetrics(metrics);
+  renderCharts(allData[filename], result);
+  renderTrades(result.tradeRecords);
+}
+
+// Init
+(async function() {
+  document.getElementById('metricsContainer').innerHTML = '<div class="loading">⏳ 加载股票数据...</div>';
+  await loadAllData();
+  // Render stock tags
+  const stockNames = {'688418_SH_daily.csv':'震有科技','600118_SH_daily.csv':'中国卫星','601698_SH_daily.csv':'中国卫通','300045_SZ_daily.csv':'华力创通'};
+  document.getElementById('stockTags').innerHTML = Object.entries(stockNames).map(([f,n])=>`<span class="stock-tag${f==='688418_SH_daily.csv'?' active':''}">${n}</span>`).join('');
+  // Run default
+  await runBacktest();
+})();
+</script>
 </body>
 </html>

@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<title>姓名+TASK4 — 海龟交易法则实战演练</title>
+<style>
+  @page { size: A4; margin: 25mm 20mm; }
+  @media print {
+    body { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+    .page-break { page-break-before: always; }
+    .no-break { page-break-inside: avoid; }
+  }
+  body {
+    font-family: "SimSun", "宋体", "Noto Serif CJK SC", serif;
+    font-size: 10.5pt;           /* 五号字 */
+    line-height: 1.5;            /* 1.5倍行距 */
+    margin: 0;
+    padding: 0;
+    color: #000;
+    max-width: 170mm;
+    margin: 0 auto;
+    padding: 20px 0;
+  }
+  p { margin: 0 0 0 0; text-align: justify; text-justify: inter-ideograph; }
+  h1 { font-family: "SimHei", "黑体", "Noto Sans CJK SC", sans-serif; font-size: 16pt; text-align: center; margin: 24pt 0 16pt; }
+  h2 { font-family: "SimHei", "黑体", "Noto Sans CJK SC", sans-serif; font-size: 12pt; margin: 18pt 0 10pt; }
+  h3 { font-family: "SimHei", "黑体", "Noto Sans CJK SC", sans-serif; font-size: 10.5pt; margin: 12pt 0 6pt; }
+  .cover { text-align: center; padding-top: 80px; }
+  .cover h1 { font-size: 20pt; margin-bottom: 8pt; }
+  .cover .subtitle { font-size: 14pt; margin-bottom: 30pt; }
+  .cover .info { font-size: 11pt; line-height: 2; }
+  .fig-caption { text-align: center; font-size: 9pt; color: #555; margin: 8px 0 12px; }
+  .chart-placeholder {
+    border: 1px dashed #ccc; border-radius: 8px; padding: 20px;
+    text-align: center; margin: 16px auto; max-width: 100%;
+    background: #fafafa;
+  }
+  .chart-placeholder canvas { max-width: 100%; }
+  table { border-collapse: collapse; width: 100%; margin: 12px 0; font-size: 9pt; }
+  table th, table td { border: 1px solid #333; padding: 6px 8px; text-align: center; }
+  table th { background: #e8e8e8; font-weight: bold; }
+  .formula { text-align: center; margin: 8px 0; font-style: italic; }
+  ul, ol { margin: 4px 0; padding-left: 24px; }
+  li { margin: 2px 0; }
+  .disclaimer { font-size: 9pt; color: #888; margin-top: 24pt; border-top: 1px solid #ccc; padding-top: 10pt; }
+</style>
+</head>
+<body>
+
+<!-- ===== 封面 ===== -->
+<div class="cover page-break">
+  <h1>量化交易工作坊</h1>
+  <div class="subtitle">TASK4 作业报告</div>
+  <h1 style="font-size:16pt;">复刻传奇：海龟交易法则实战演练</h1>
+  <div class="info">
+    <p style="text-align:center;">姓名：___________</p>
+    <p style="text-align:center;">学号：___________</p>
+    <p style="text-align:center;">日期：2026年7月11日</p>
+    <p style="text-align:center; margin-top:16pt;">基于唐奇安通道 + ATR + 风险预算的趋势跟踪策略</p>
+    <p style="text-align:center;">分析标的：震有科技 / 中国卫星 / 中国卫通 / 华力创通</p>
+    <p style="text-align:center;">数据来源：Tushare Pro API</p>
+  </div>
+</div>
+
+<!-- ===== 第一部分 ===== -->
+<div class="page-break"></div>
+<h2>一、海龟交易策略概述</h2>
+
+<h3>1.1 海龟策略的起源</h3>
+<p>海龟交易法则（Turtle Trading Rules）诞生于1983年，由著名商品交易员 Richard Dennis 和他的合伙人 William Eckhardt 共同创立。Dennis 坚信交易能力可以通过系统化训练来培养，为此他从1000多名申请者中挑选了13名"海龟"学员，教授他们一套完整的机械化交易系统。在随后的四年中，这批海龟学员创造了年均复合收益率超过80%的业绩，使海龟交易法则成为量化交易历史上最具传奇色彩的策略体系之一。</p>
+
+<h3>1.2 海龟策略的核心思想</h3>
+<p>海龟策略是一种纯粹的趋势跟踪（Trend Following）策略，其核心哲学包括四大支柱：</p>
+<p><b>（1）顺势而为。</b>海龟策略不预测市场方向，而是等趋势确立后跟随。当价格创出近期新高时，策略认为上升趋势已经形成，此时入场做多；当价格跌破近期低点时，策略认为上升趋势可能终结，此时平仓退出。</p>
+<p><b>（2）让利润奔跑，截断亏损（Cut Losses Short, Let Profits Run）。</b>海龟策略通过唐奇安通道突破入场捕捉趋势，同时使用基于 ATR 的严格止损纪律控制单笔交易的风险。单笔交易最大亏损被限制在账户总权益的2%以内。</p>
+<p><b>（3）系统化执行。</b>海龟策略是一套完全机械化的交易系统，所有买卖决策都基于明确的量化规则——何时入场、何时止损、何时退出，都有清晰的数学定义。这种系统化的方法消除了情绪对交易决策的干扰。</p>
+<p><b>（4）分散化投资。</b>原版海龟策略鼓励同时在多个不相关的市场中运行，通过多元化降低整体组合的波动性。</p>
+
+<h3>1.3 海龟策略的关键优势</h3>
+<p>① <b>规则清晰、完全量化</b>：所有交易决策都有明确的数学公式，不存在主观判断空间，易于编程实现和自动化执行。</p>
+<p>② <b>强大的风险控制</b>：基于 ATR 的动态仓位管理和止损规则提供了天然的下行保护。即使连续亏损，账户最大回撤仍可控制在一定范围内。</p>
+<p>③ <b>长期正期望值</b>：虽然单笔交易胜率通常为35%-45%，但盈亏比可达2:1以上，使得长期期望值为正。盈利模式是"小亏多次 + 大赚少数"。</p>
+<p>④ <b>适应性强</b>：通过参数调整，海龟策略可以适应不同市场和不同时间周期。</p>
+<p>⑤ <b>经过实战检验</b>：海龟策略在40余年的历史中经历了多轮牛熊周期的考验，至今仍是众多专业量化基金的核心策略之一。</p>
+
+<!-- ===== 第二部分 ===== -->
+<div class="page-break"></div>
+<h2>二、海龟策略核心概念解释</h2>
+
+<h3>2.1 唐奇安通道（Donchian Channel）</h3>
+<p>唐奇安通道由 Richard Donchian 发明，是海龟策略中最重要的技术指标。它由两条线组成：上轨（Upper Band）= 过去 N 日的最高价；下轨（Lower Band）= 过去 N 日的最低价。</p>
+<p>海龟策略使用两条不同周期的唐奇安通道：</p>
+<p><b>系统一（入场通道）</b>：周期为20日。当收盘价突破20日最高价（即上轨）时，产生买入信号，表示短期上升趋势确立，海龟入场做多。</p>
+<p><b>系统二（退出通道）</b>：周期为10日。当收盘价跌破10日最低价（即下轨）时，产生卖出信号，表示短期上升趋势可能终结，海龟平仓退出。</p>
+<p>唐奇安通道的本质是"价格突破"思想：价格创短期新高意味着买方力量强劲，趋势可能延续；价格创短期新低意味着卖方开始主导，趋势可能反转。通过20日入场 + 10日退出的不对称设计，海龟策略实现了"快速入场、更快速退出"的非对称风险管理。</p>
+
+<h3>2.2 平均真实波幅（Average True Range, ATR）</h3>
+<p>ATR 由 J. Welles Wilder 在1978年提出，用于衡量市场波动性。与标准差不同，ATR 能更好地捕捉跳空缺口带来的额外风险。</p>
+<p>计算步骤：</p>
+<p>第一步——计算真实波幅（True Range, TR）：<br>TR = max(|H − L|, |H − C<sub>prev</sub>|, |L − C<sub>prev</sub>|)，其中 H 为当日最高价，L 为当日最低价，C<sub>prev</sub> 为前一日收盘价。</p>
+<p>第二步——使用 Wilder 平滑方法计算 ATR：<br>初始 ATR = 前 N 期 TR 的简单平均值；后续 ATR = (前一日ATR × (N−1) + 当日TR) / N。</p>
+<p>在海龟策略中，ATR 扮演三个关键角色：① 仓位规模计算；② 止损设置（止损价 = 入场价 − 2 × ATR）；③ 加仓间距（每 0.5 ATR 为一个加仓单位）。</p>
+
+<h3>2.3 止损条件</h3>
+<p>止损是海龟策略风险管理的核心。海龟策略采用基于 ATR 的动态止损机制：止损价 = 入场价 − N × ATR（经典参数 N=2）。</p>
+<p>这种止损机制的精妙之处在于：① <b>动态适应</b>——高波动市场 ATR 大，止损带更宽，避免被正常波动"震出"；低波动市场 ATR 小，止损带更窄，快速截断亏损。② <b>风险量化</b>——每笔交易的最大亏损被预先量化为账户权益的固定比例。③ <b>心理优势</b>——明确的止损规则消除了"希望股价反弹"的侥幸心理，帮助交易员严格执行纪律。</p>
+
+<!-- ===== 第三部分 ===== -->
+<div class="page-break"></div>
+<h2>三、Python 编程实现</h2>
+
+<h3>3.1 数据加载</h3>
+<p>本策略使用 Tushare Pro API 获取的 A 股日线行情数据，以 CSV 格式存储。分析标的包括四只卫星通信及相关领域的 A 股：688418.SH 震有科技（通信设备）、600118.SH 中国卫星（卫星制造）、601698.SH 中国卫通（卫星通信服务）、300045.SZ 华力创通（卫星导航）。每只股票的数据包含 trade_date、open、high、low、close、vol、amount 等字段，加载后按日期升序排列。</p>
+
+<h3>3.2 唐奇安通道计算</h3>
+<p>使用 pandas 的 rolling 方法计算：通道上轨 = df["high"].rolling(20).max().shift(1)；通道下轨 = df["low"].rolling(20).min().shift(1)。注意使用 shift(1) 将通道值向后偏移一天，避免使用当日高/低价判断当日收盘价，这是避免"未来函数"偏误的关键步骤。</p>
+
+<h3>3.3 ATR 计算</h3>
+<p>按照 Wilder 的方法，首先计算 True Range（真实波幅），然后使用递归平滑公式计算 ATR。ATR 的值同样使用 shift(1) 偏移一天，确保回测中使用的 ATR 只基于历史数据。</p>
+
+<h3>3.4 交易信号生成</h3>
+<p>信号逻辑简洁明确：买入信号——当日收盘价 > 20日唐奇安通道上轨；卖出信号——当日收盘价 < 10日唐奇安通道下轨。回测中，买入信号出现时以收盘价建仓；卖出信号出现时以收盘价清仓。止损条件独立于信号系统，当价格跌破"入场价 − 2 × ATR"时强制平仓。</p>
+
+<h3>3.5 回测与绩效指标</h3>
+<p>回测引擎模拟完整交易流程，初始资金设为100,000元。每次买入时根据 ATR 和风险预算计算仓位。回测结束后计算以下核心绩效指标：</p>
+<p>累计回报率 = (最终资产 / 初始资产 − 1) × 100%</p>
+<p>年化收益率 = 累计回报率<sup>(252/交易天数)</sup> − 1</p>
+<p>最大回撤 (MDD) = min((当日资产 / 历史峰值 − 1)) × 100%</p>
+<p>夏普比率 = (日收益率均值 / 日收益率标准差) × √252</p>
+<p>年化波动率 = 日收益率标准差 × √252</p>
+<p>胜率 = 盈利交易次数 / 总交易次数 × 100%</p>
+
+<!-- ===== 第四部分：结果 ===== -->
+<div class="page-break"></div>
+<h2>四、回测结果与可视化分析</h2>
+
+<p>以下展示海龟策略在震有科技（688418.SH）上的完整回测结果，使用经典参数：入场通道20日、退出通道10日、ATR周期20日、止损2倍ATR、初始资金100,000元。</p>
+
+<div class="no-break">
+  <div class="chart-placeholder">
+    <canvas id="fig1" width="700" height="420"></canvas>
+  </div>
+  <div class="fig-caption">图1: 震有科技(688418.SH)海龟策略回测全景图：股价走势、唐奇安通道及买卖交易信号</div>
+</div>
+
+<p><b>图1解读：</b>展示了收盘价走势（蓝线）、入场通道上轨（红色虚线）和退出通道下轨（橙色虚线）。绿色三角标记为买入信号（突破20日高点），红色倒三角标记为卖出信号（跌破10日低点）。从图中可以观察到，海龟策略在价格突破通道时果断入场，当趋势走坏时及时退出，体现了"顺势而为"的核心思想。</p>
+
+<div class="no-break">
+  <div class="chart-placeholder">
+    <canvas id="fig2" width="700" height="300"></canvas>
+  </div>
+  <div class="fig-caption">图2: 策略资金曲线 vs 买入持有基准对比</div>
+</div>
+
+<p><b>图2解读：</b>蓝线为海龟策略资金曲线，灰色虚线为买入持有基准。策略资金曲线在上涨阶段紧跟基准，在下跌阶段通过空仓避免了部分回撤，体现了趋势跟踪策略在风险控制上的核心价值。</p>
+
+<div class="no-break">
+  <div class="chart-placeholder">
+    <canvas id="fig3" width="700" height="240"></canvas>
+  </div>
+  <div class="fig-caption">图3: 策略回撤曲线</div>
+</div>
+
+<p><b>图3解读：</b>红色区域为策略运行期间的回撤情况。回撤主要集中在横盘震荡期，当价格反复穿越通道时，策略频繁产生假信号导致连续小幅亏损。这揭示了海龟策略最主要的脆弱性——震荡市中的持续磨损。</p>
+
+<div class="no-break">
+  <div class="chart-placeholder">
+    <canvas id="fig4" width="700" height="220"></canvas>
+  </div>
+  <div class="fig-caption">图4: 20日平均真实波幅（ATR）走势</div>
+</div>
+
+<p><b>图4解读：</b>ATR 反映了市场波动性的起伏。在高波动时期 ATR 上升，策略的止损带自动放宽；在低波动时期 ATR 下降，止损带收窄，体现了 ATR 动态适应市场状态的能力。</p>
+
+<!-- ===== 第五部分 ===== -->
+<div class="page-break"></div>
+<h2>五、参数调优分析</h2>
+
+<p>为探究不同通道周期参数对策略表现的影响，以震有科技为固定标的，测试六组参数组合，从短周期（10/5日）到原版海龟系统一（55/20日）逐步递增。</p>
+
+<p><b>测试参数组合：</b></p>
+<p>组合1: 10/5日（超短周期）| 组合2: 15/7日（中短周期）| 组合3: 20/10日（经典参数）| 组合4: 30/15日（中长周期）| 组合5: 40/20日（长周期）| 组合6: 55/20日（原版系统一）</p>
+
+<div class="no-break">
+  <div class="chart-placeholder">
+    <canvas id="fig5" width="700" height="380"></canvas>
+  </div>
+  <div class="fig-caption">图5: 震有科技不同通道周期参数的六维绩效对比</div>
+</div>
+
+<p><b>图5解读：</b>从六维绩效对比可以看出以下规律：（1）交易次数：短周期参数产生的交易次数显著多于长周期参数，但更多交易不意味着更高收益。（2）总收益率：参数表现与市场状态高度相关，趋势明显的阶段较长通道更优。在本回测区间中，中期参数（20/10、30/15）表现较好。（3）夏普比率：中等周期参数通常呈现更高的夏普比率。（4）最大回撤：长周期参数的回撤通常更大，因为退出信号滞后。整体而言，经典20/10日参数在收益和风险之间达到了较好的平衡，验证了 Richard Dennis 选择这一参数的经验智慧。</p>
+
+<!-- ===== 第六部分 ===== -->
+<h2>六、多股票交叉验证</h2>
+
+<p>为检验海龟策略的普适性，统一使用经典参数（20/10日通道），在四只卫星通信产业链相关股票上进行回测对比。</p>
+
+<div class="no-break">
+  <div class="chart-placeholder">
+    <canvas id="fig6" width="700" height="380"></canvas>
+  </div>
+  <div class="fig-caption">图6: 四只股票在经典海龟参数(20/10日)下的策略绩效对比</div>
+</div>
+
+<p><b>图6解读：</b>对比结果揭示了几点重要发现：（1）策略表现存在显著的个股差异，海龟策略并非"万能工具"。（2）趋势性强的股票更适合海龟策略，横盘整理股票中假突破会导致策略持续磨损。（3）波动率适中的股票表现最佳。（4）跨股票分散投资是降低海龟策略整体风险的有效手段。</p>
+
+<!-- ===== 第七部分 ===== -->
+<div class="page-break"></div>
+<h2>七、海龟法则的适应场景与使用心得</h2>
+
+<h3>7.1 适应场景</h3>
+<p>① <b>强趋势市场</b>：在明显的单边牛市或熊市中，海龟策略能够最大化趋势收益。趋势越长、越持续，策略的累计收益越高。② <b>中长线投资周期</b>：海龟策略是典型的中线趋势跟踪策略（持仓周期通常为几周至几个月），不适合日内交易。③ <b>高流动性标的</b>：交易活跃、买卖价差小的标的能降低滑点和冲击成本。④ <b>多品种组合</b>：当在多个低相关性的品种上同时运行时，组合层面的风险调整收益显著优于单一品种。</p>
+
+<h3>7.2 不适用场景</h3>
+<p>① <b>剧烈震荡市场</b>：价格在窄幅区间反复波动时，通道突破产生大量假信号，频繁止损导致策略净值持续回撤。② <b>突发反转行情</b>：当价格因突发事件快速反转时，策略来不及反应。③ <b>流动性枯竭的市场</b>：成交量极低的标的的滑点问题会严重侵蚀策略收益。</p>
+
+<h3>7.3 使用心得与感悟</h3>
+<p><b>第一，简单策略蕴含深刻智慧。</b>海龟策略的逻辑只有寥寥几条规则——突破20日高点买入，跌破10日低点卖出，止损2倍ATR——但背后凝聚了趋势跟踪交易哲学的精髓。量化交易的核心不在于模型的复杂程度，而在于逻辑的正确性和执行的一致性。</p>
+<p><b>第二，风险控制是交易的生命线。</b>海龟策略最令人震撼的不是它的盈利公式，而是它的风控体系。基于ATR的动态仓位管理和2%止损规则，确保了策略在任何市场环境下都能"活下去"。在这个市场上，首先要考虑的不是赚多少，而是能活多久。</p>
+<p><b>第三，接受亏损是盈利的前提。</b>海龟策略的胜率通常在35%-45%之间——超过一半的交易都是亏损的！但正是这些"小亏损"为少数"大盈利"创造了条件。这颠覆了"高胜率=好策略"的直觉认知，让人理解盈亏比的重要性。</p>
+<p><b>第四，纪律是策略有效的前提。</b>回测中严格按信号执行与实盘中看到浮亏就恐慌平仓，两者的结果天壤之别。知道和做到之间隔着人性的鸿沟。</p>
+<p><b>第五，没有圣杯，只有适应。</b>海龟策略的表现高度依赖市场状态。在趋势市场中它是利器，在震荡市场中它是钝刀。量化交易的本质是以数据为基础做判断，而非盲目相信某一个"神奇公式"。</p>
+
+<h2>八、参考资料</h2>
+<p>1. Curtis Faith, "Way of the Turtle: The Secret Methods that Turned Ordinary People into Legendary Traders", McGraw-Hill, 2007.</p>
+<p>2. Richard Donchian, "Donchian's 5 and 20 Day Moving Average System", 1934.</p>
+<p>3. J. Welles Wilder, "New Concepts in Technical Trading Systems", 1978.</p>
+<p>4. Tushare Pro API 文档: https://tushare.pro/</p>
+<p>5. 数据来源：Tushare Pro 提供的 A 股日线行情数据。</p>
+
+<div class="disclaimer">
+  <p><b>免责声明：</b>本报告仅供教学研究使用，不构成任何投资建议。历史回测结果不代表未来表现。实际交易中需考虑交易成本、滑点、流动性等现实因素。</p>
+</div>
+
+<!-- ===== Chart.js for report figures ===== -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<script>
+// ===== Turtle Engine (same as index.html) =====
+function rollingMax(arr,p,shift=1){const r=Array(arr.length).fill(null),q=[];for(let i=0;i<arr.length;i++){while(q.length&&q[0]<=i-p)q.shift();while(q.length&&arr[q[q.length-1]]<=arr[i])q.pop();q.push(i);if(i>=p-1)r[i]=arr[q[0]];}if(shift){for(let i=r.length-1;i>=1;i--)r[i]=r[i-1];r[0]=null;}return r;}
+function rollingMin(arr,p,shift=1){const r=Array(arr.length).fill(null),q=[];for(let i=0;i<arr.length;i++){while(q.length&&q[0]<=i-p)q.shift();while(q.length&&arr[q[q.length-1]]>=arr[i])q.pop();q.push(i);if(i>=p-1)r[i]=arr[q[0]];}if(shift){for(let i=r.length-1;i>=1;i--)r[i]=r[i-1];r[0]=null;}return r;}
+function calcTR(h,l,c){const t=Array(h.length).fill(null);for(let i=1;i<h.length;i++)t[i]=Math.max(h[i]-l[i],Math.abs(h[i]-c[i-1]),Math.abs(l[i]-c[i-1]));return t;}
+function calcATR(h,l,c,p,shift=1){const tr=calcTR(h,l,c),atr=Array(h.length).fill(null);if(h.length>=p){let s=0,n=0;for(let i=0;i<p;i++){if(tr[i]!=null){s+=tr[i];n++;}}if(n>0)atr[p-1]=s/n;for(let i=p;i<h.length;i++){if(tr[i]!=null&&atr[i-1]!=null)atr[i]=(atr[i-1]*(p-1)+tr[i])/p;}}if(shift){for(let i=atr.length-1;i>=1;i--)atr[i]=atr[i-1];atr[0]=null;}return atr;}
+function genSignals(data,ep,xp,ap){const h=data.map(d=>d.high),l=data.map(d=>d.low),c=data.map(d=>d.close);const atr=calcATR(h,l,c,ap,1);const eu=rollingMax(h,ep,1),el=rollingMin(l,ep,1);const xu=rollingMax(h,xp,1),xl=rollingMin(l,xp,1);const es=Array(data.length).fill(0),xs=Array(data.length).fill(0);for(let i=Math.max(ep,ap);i<data.length;i++){if(c[i]!=null&&eu[i]!=null&&c[i]>eu[i])es[i]=1;if(c[i]!=null&&xl[i]!=null&&c[i]<xl[i])xs[i]=1;}return{entrySignal:es,exitSignal:xs,atr,entryUpper:eu,entryLower:el,exitUpper:xu,exitLower:xl};}
+function runBT(data,params){const{entry_period:ep,exit_period:xp,atr_period:ap,stop_multiple:sm,risk_fraction:rf,initial_capital:ic}=params;const sig=genSignals(data,ep,xp,ap);const n=data.length;let cash=ic,shares=0,pos=0,epr=0,eatr=0,sp=0;const tr=[],er=[];for(let i=Math.max(ep,ap);i<n;i++){const r=data[i],date=r.date,o=r.open,c=r.close,a=sig.atr[i];const es=sig.entrySignal[i],xs=sig.exitSignal[i];if(o==null||c==null||a==null){er.push({date,totalEquity:cash+(pos?shares*c:0),close:c,atr:a});continue;}if(pos===1&&c<sp){cash=shares*c;shares=0;pos=0;tr.push({entryDate:null,exitDate:date,entryPrice:epr,exitPrice:c,returnPct:(c-epr)/epr,type:'止损平仓'});}else if(pos===1&&xs){cash=shares*c;shares=0;pos=0;tr.push({entryDate:null,exitDate:date,entryPrice:epr,exitPrice:c,returnPct:(c-epr)/epr,type:'卖出'});}else if(pos===0&&es){const ra=cash*rf;let q=Math.floor(ra/(sm*a));if(q<100)q=100;const cost=q*c;if(cost<=cash){shares=q;cash-=cost;pos=1;epr=c;eatr=a;sp=epr-sm*eatr;tr.push({entryDate:date,exitDate:null,entryPrice:epr,exitPrice:null,returnPct:null,type:'买入'});}}er.push({date,totalEquity:cash+(pos===1?shares*c:0),close:c,atr:a});}if(pos===1){const lc=data[n-1].close;cash=shares*lc;shares=0;tr.push({entryDate:null,exitDate:data[n-1].date,entryPrice:epr,exitPrice:lc,returnPct:(lc-epr)/epr,type:'清仓'});er[er.length-1].totalEquity=cash;}const buys=tr.filter(t=>t.type==='买入'),sells=tr.filter(t=>t.type!=='买入');for(let j=0;j<Math.min(buys.length,sells.length);j++){sells[j].entryDate=buys[j].entryDate;sells[j].entryPrice=buys[j].entryPrice;sells[j].returnPct=(sells[j].exitPrice-buys[j].entryPrice)/buys[j].entryPrice;sells[j].holdingDays=Math.round((new Date(sells[j].exitDate)-new Date(buys[j].entryDate))/86400000);}return{sig,er,tr:sells.filter(t=>t.entryDate!=null)};}
+function metrics(er,tr,ic){const n=er.length;if(n===0)return{};const eq=er.map(e=>e.totalEquity),f=eq[n-1],cr=(f-ic)/ic;const yr=n/252,ar=yr>0?Math.pow(1+cr,1/yr)-1:0;const dr=[];for(let i=1;i<n;i++){if(eq[i-1]>0)dr.push((eq[i]-eq[i-1])/eq[i-1]);}const mr=dr.reduce((s,v)=>s+v,0)/dr.length;const vr=dr.reduce((s,v)=>s+Math.pow(v-mr,2),0)/dr.length;const av=Math.sqrt(vr)*Math.sqrt(252);const sh=av>0?(mr/av)*Math.sqrt(252):0;let pk=-Infinity,md=0;for(const v of eq){if(v>pk)pk=v;const d=(v-pk)/pk;if(d<md)md=d;}const nt=tr.length;let wr=0,awl=0;if(nt>0){const ws=tr.filter(t=>t.returnPct>0),ls=tr.filter(t=>t.returnPct<=0);wr=ws.length/nt;awl=tr.reduce((s,t)=>s+(t.holdingDays||0),0)/nt;}const br=(er[n-1].close-er[0].close)/er[0].close;return{cr,ar,av,sh,md,wr,nt,awl,br,trp:cr*100,arp:ar*100,mdp:md*100,wrp:wr*100,avp:av*100,brp:br*100,fe:eq[n-1]};}
+
+async function loadCSV(fn){
+  const r=await fetch('data/'+fn);const t=await r.text();const ls=t.trim().split('\n');if(ls.length<2)return[];
+  const h=ls[0].replace(/^﻿/,'').split(',');
+  const di=h.findIndex(c=>c.toLowerCase().includes('trade_date')||c.toLowerCase()==='date');
+  const oi=h.findIndex(c=>c.toLowerCase()==='open'),hi=h.findIndex(c=>c.toLowerCase()==='high');
+  const li=h.findIndex(c=>c.toLowerCase()==='low'),ci=h.findIndex(c=>c.toLowerCase()==='close');
+  const d=[];for(let i=1;i<ls.length;i++){const cs=ls[i].split(',');const ds=cs[di];
+    let dt;if(ds.includes('-'))dt=new Date(ds+'T00:00:00');else{const x=ds.trim();dt=new Date(x.slice(0,4)+'-'+x.slice(4,6)+'-'+x.slice(6,8)+'T00:00:00');}
+    if(isNaN(dt.getTime()))continue;
+    d.push({date:dt.toISOString().split('T')[0],open:+cs[oi],high:+cs[hi],low:+cs[li],close:+cs[ci]});}
+  return d.sort((a,b)=>a.date.localeCompare(b.date));
+}
+
+function fmtP(v){return(v>=0?'+':'')+v.toFixed(2)+'%';}
+
+async function drawAll(){
+  const stock='688418_SH_daily.csv';
+  const data=await loadCSV(stock);
+  const params={entry_period:20,exit_period:10,atr_period:20,stop_multiple:2.0,risk_fraction:0.01,initial_capital:100000};
+  const res=runBT(data,params);
+  const m=metrics(res.er,res.tr,params.initial_capital);
+  const labels=data.map(d=>d.date),close=data.map(d=>d.close);
+  const eqLabels=res.er.map(e=>e.date),eqVals=res.er.map(e=>e.totalEquity);
+  const bench=eqVals.map((_,i)=>eqVals[0]*(close[i]/close[0]));
+  let pk=-Infinity;const dd=eqVals.map(v=>{if(v>pk)pk=v;return(v-pk)/pk*100;});
+
+  // Fig 1: Price + Channels
+  const bp=[],sp=[];for(let i=0;i<data.length;i++){if(res.sig.entrySignal[i]===1)bp.push({x:labels[i],y:close[i]});if(res.sig.exitSignal[i]===1)sp.push({x:labels[i],y:close[i]});}
+  new Chart(document.getElementById('fig1'),{type:'line',data:{labels,datasets:[
+    {label:'收盘价',data:close,borderColor:'#2563eb',borderWidth:1.5,pointRadius:0},
+    {label:'入场通道上轨',data:res.sig.entryUpper,borderColor:'#dc2626',borderWidth:1,borderDash:[5,3],pointRadius:0},
+    {label:'退出通道下轨',data:res.sig.exitLower,borderColor:'#d97706',borderWidth:1,borderDash:[5,3],pointRadius:0},
+    {label:'买入 ▲',data:bp,type:'scatter',backgroundColor:'#16a34a',borderColor:'#fff',borderWidth:1,pointRadius:6,pointStyle:'triangle'},
+    {label:'卖出 ▼',data:sp,type:'scatter',backgroundColor:'#dc2626',borderColor:'#fff',borderWidth:1,pointRadius:6,pointStyle:'triangle',rotation:180},
+  ]},options:{responsive:true,plugins:{legend:{position:'top',labels:{font:{size:10},usePointStyle:true}}},scales:{x:{ticks:{maxTicksLimit:14}},y:{title:{display:true,text:'价格(元)'}}}}});
+
+  // Fig 2: Equity
+  new Chart(document.getElementById('fig2'),{type:'line',data:{labels:eqLabels,datasets:[
+    {label:'策略资金曲线',data:eqVals,borderColor:'#2563eb',borderWidth:2,pointRadius:0},
+    {label:'买入持有',data:bench,borderColor:'#94a3b8',borderWidth:1,borderDash:[4,4],pointRadius:0},
+  ]},options:{responsive:true,plugins:{legend:{position:'top',labels:{font:{size:10}}}},scales:{x:{ticks:{maxTicksLimit:14}},y:{title:{display:true,text:'资产(元)'}}}}});
+
+  // Fig 3: Drawdown
+  new Chart(document.getElementById('fig3'),{type:'line',data:{labels:eqLabels,datasets:[
+    {label:'回撤',data:dd,borderColor:'#dc2626',backgroundColor:'rgba(220,38,38,0.15)',borderWidth:1,pointRadius:0,fill:true},
+  ]},options:{responsive:true,plugins:{legend:{display:false}},scales:{x:{ticks:{maxTicksLimit:14}},y:{title:{display:true,text:'回撤(%)'}}}}});
+
+  // Fig 4: ATR
+  new Chart(document.getElementById('fig4'),{type:'line',data:{labels,datasets:[
+    {label:'ATR',data:res.sig.atr,borderColor:'#7c3aed',backgroundColor:'rgba(124,58,237,0.1)',borderWidth:1,pointRadius:0,fill:true},
+  ]},options:{responsive:true,plugins:{legend:{display:false}},scales:{x:{ticks:{maxTicksLimit:14}},y:{title:{display:true,text:'ATR(元)'}}}}});
+
+  // Fig 5: Parameter comparison — run all 6 configs
+  const configs=[{l:'10/5日',ep:10,xp:5},{l:'15/7日',ep:15,xp:7},{l:'20/10日(经典)',ep:20,xp:10},{l:'30/15日',ep:30,xp:15},{l:'40/20日',ep:40,xp:20},{l:'55/20日',ep:55,xp:20}];
+  const pRes=configs.map(c=>{const r=runBT(data,{...params,entry_period:c.ep,exit_period:c.xp});return metrics(r.er,r.tr,params.initial_capital);});
+  const pLabels=configs.map(c=>c.l);
+  new Chart(document.getElementById('fig5'),{type:'bar',data:{labels:pLabels,datasets:[
+    {label:'总收益率(%)',data:pRes.map(r=>r.trp),backgroundColor:'#2563eb'},
+    {label:'夏普比率',data:pRes.map(r=>r.sh),backgroundColor:'#16a34a'},
+    {label:'最大回撤(%)',data:pRes.map(r=>r.mdp),backgroundColor:'#dc2626'},
+    {label:'胜率(%)',data:pRes.map(r=>r.wrp),backgroundColor:'#d97706'},
+    {label:'年化收益(%)',data:pRes.map(r=>r.arp),backgroundColor:'#7c3aed'},
+    {label:'交易次数',data:pRes.map(r=>r.nt),backgroundColor:'#0891b2'},
+  ]},options:{responsive:true,plugins:{legend:{position:'top',labels:{font:{size:9}}}},scales:{x:{ticks:{font:{size:9}}},y:{title:{display:true,text:'数值'}}}}});
+
+  // Fig 6: Multi-stock comparison
+  const stocks=[{f:'688418_SH_daily.csv',n:'震有科技'},{f:'600118_SH_daily.csv',n:'中国卫星'},{f:'601698_SH_daily.csv',n:'中国卫通'},{f:'300045_SZ_daily.csv',n:'华力创通'}];
+  const sRes=[];for(const s of stocks){const d=await loadCSV(s.f);const r=runBT(d,params);sRes.push({...metrics(r.er,r.tr,params.initial_capital),name:s.n});}
+  new Chart(document.getElementById('fig6'),{type:'bar',data:{labels:sRes.map(r=>r.name),datasets:[
+    {label:'总收益率(%)',data:sRes.map(r=>r.trp),backgroundColor:'#2563eb'},
+    {label:'夏普比率',data:sRes.map(r=>r.sh),backgroundColor:'#16a34a'},
+    {label:'最大回撤(%)',data:sRes.map(r=>r.mdp),backgroundColor:'#dc2626'},
+    {label:'胜率(%)',data:sRes.map(r=>r.wrp),backgroundColor:'#d97706'},
+    {label:'年化收益(%)',data:sRes.map(r=>r.arp),backgroundColor:'#7c3aed'},
+    {label:'交易次数',data:sRes.map(r=>r.nt),backgroundColor:'#0891b2'},
+  ]},options:{responsive:true,plugins:{legend:{position:'top',labels:{font:{size:9}}}},scales:{x:{ticks:{font:{size:9}}},y:{title:{display:true,text:'数值'}}}}});
+}
+
+drawAll();
+</script>
+</body>
+</html>
